@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # Copyright 2007 Google Inc.
 #
@@ -17,6 +16,29 @@
 import webapp2
 import re
 
+# html boilerplate for the top of every page
+page_header = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Signup</title>
+    <style type="text/css">
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Signup</h1>
+"""
+
+# html boilerplate for the bottom of every page
+page_footer = """
+</body>
+</html>
+"""
+
+# test the vadility of username, password, and email
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 def valid_username(username):
     return username and USER_RE.match(username)
@@ -32,7 +54,6 @@ def match_password(password, verify):
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        page_header = "<h1>Signup</h1>"
         form = """
         <form method="post">
             <table>
@@ -74,16 +95,13 @@ class MainHandler(webapp2.RequestHandler):
         </form>
         """
 
-        self.response.write(page_header + form)
+        self.response.write(page_header + form + page_footer)
 
     def post(self):
-        page_header = "<h1>Signup</h1>"
         username = self.request.get("username")
         password = self.request.get("password")
         verify = self.request.get("verify")
         email = self.request.get("email")
-
-
 
         if valid_username(username) and valid_password(password) and match_password(password, verify) and valid_email(email):
             self.redirect("/welcome?username=" + username)
@@ -120,7 +138,7 @@ class MainHandler(webapp2.RequestHandler):
                         <label>Username</label>
                     </td>
                     <td>
-                        <input type="text" name="email" value="{n}">
+                        <input type="text" name="username" value="{n}">
                         <span class='error'>{n_error}</span>
                     </td>
                 </tr>
@@ -157,13 +175,13 @@ class MainHandler(webapp2.RequestHandler):
         </form>
         """.format(n_error = name_error, n = name_typed, p_error = password_error, m_error = match_error, e = email_typed, e_error = email_error)
 
-        self.response.write(page_header + form)
+        self.response.write(page_header + form + page_footer)
 
 
 class Welcome(webapp2.RequestHandler):
     def get(self):
-        name = self.request.get("username")
-        welcome_message = "<h3>" + "Welcome, " + name + "!" + "</h3>"
+        username = self.request.get("username")
+        welcome_message = "<h3>" + "Welcome, " + username + "!" + "</h3>"
         self.response.write(welcome_message)
 
 app = webapp2.WSGIApplication([
